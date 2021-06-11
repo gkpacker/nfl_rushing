@@ -1,4 +1,5 @@
 defmodule NflRushingWeb.PageLive do
+  @moduledoc false
   use NflRushingWeb, :live_view
 
   @impl true
