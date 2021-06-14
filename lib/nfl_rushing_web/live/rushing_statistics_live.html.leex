@@ -1,0 +1,67 @@
+<h1>Rushing Statistics</h1>
+<hr>
+<div>
+  <table>
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>Team</th>
+        <th>Pos</th>
+        <th>Att/G</th>
+        <th>Att</th>
+        <th>
+          <%= live_patch sort_text("Yds", @options), to: Routes.rushing_statistics_path(
+                                      @socket,
+                                      :index,
+                                      sort_by: "Yds",
+                                      sort_order: toggle_sort_order(@options)
+                                    ) %>
+        </th>
+        <th>Avg</th>
+        <th>Yds/G</th>
+        <th>
+          <%= live_patch sort_text("Td", @options), to: Routes.rushing_statistics_path(
+                                    @socket,
+                                    :index,
+                                    sort_by: "Td",
+                                    sort_order: toggle_sort_order(@options)
+                                  ) %>
+        </th>
+        <th>
+          <%= live_patch sort_text("Lng", @options), to: Routes.rushing_statistics_path(
+                                      @socket,
+                                      :index,
+                                      sort_by: "Lng",
+                                      sort_order: toggle_sort_order(@options)
+                                    ) %>
+        </th>
+        <th>1st</th>
+        <th>1st%</th>
+        <th>20+</th>
+        <th>40+</th>
+        <th>FUM</th>
+      </tr>
+    </thead>
+    <tbody id="rushing_statistics">
+      <%= for rushing_statistic <- @rushing_statistics do %>
+        <tr id="rushing_statistic-<%= rushing_statistic.id %>">
+          <td><strong><%= rushing_statistic.player_name %></strong></td>
+          <td><%= rushing_statistic.team %></td>
+          <td><%= rushing_statistic.player_position %></td>
+          <td><%= rushing_statistic.attempts_per_game_average %></td>
+          <td><%= rushing_statistic.attempts %></td>
+          <td><%= rushing_statistic.total_yards %></td>
+          <td><%= rushing_statistic.average_yards_per_attempt %></td>
+          <td><%= rushing_statistic.yards_per_game %></td>
+          <td><%= rushing_statistic.total_touchdowns %></td>
+          <td><%= longest_rush(rushing_statistic) %></td>
+          <td><%= rushing_statistic.first_downs %></td>
+          <td><%= rushing_statistic.first_down_percentage %></td>
+          <td><%= rushing_statistic.above_twenty_yards %></td>
+          <td><%= rushing_statistic.above_forty_yards %></td>
+          <td><%= rushing_statistic.fumbles %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

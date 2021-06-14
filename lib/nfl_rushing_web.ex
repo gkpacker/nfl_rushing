@@ -17,6 +17,8 @@ defmodule NflRushingWeb do
   and import those modules here.
   """
 
+  defdelegate list_rushing_statistics(options), to: NflRushing
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: NflRushingWeb
