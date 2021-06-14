@@ -1,6 +1,9 @@
 <h1>Rushing Statistics</h1>
 <hr>
 <div>
+  <form phx-change="filter">
+    <input type="text" name="player_name" value="<%= @player_name %>" class="form-control" placeholder="Player Name" />
+  </form>
   <table>
     <thead>
       <tr>
@@ -10,29 +13,32 @@
         <th>Att/G</th>
         <th>Att</th>
         <th>
-          <%= live_patch sort_text("Yds", @options), to: Routes.rushing_statistics_path(
+          <%= live_patch sort_text("Yds", @sort_options), to: Routes.rushing_statistics_path(
                                       @socket,
                                       :index,
                                       sort_by: "Yds",
-                                      sort_order: toggle_sort_order(@options)
+                                      sort_order: toggle_sort_order(@sort_options),
+                                      player_name: @player_name
                                     ) %>
         </th>
         <th>Avg</th>
         <th>Yds/G</th>
         <th>
-          <%= live_patch sort_text("Td", @options), to: Routes.rushing_statistics_path(
+          <%= live_patch sort_text("Td", @sort_options), to: Routes.rushing_statistics_path(
                                     @socket,
                                     :index,
                                     sort_by: "Td",
-                                    sort_order: toggle_sort_order(@options)
+                                    sort_order: toggle_sort_order(@sort_options),
+                                    player_name: @player_name
                                   ) %>
         </th>
         <th>
-          <%= live_patch sort_text("Lng", @options), to: Routes.rushing_statistics_path(
+          <%= live_patch sort_text("Lng", @sort_options), to: Routes.rushing_statistics_path(
                                       @socket,
                                       :index,
                                       sort_by: "Lng",
-                                      sort_order: toggle_sort_order(@options)
+                                      sort_order: toggle_sort_order(@sort_options),
+                                      player_name: @player_name
                                     ) %>
         </th>
         <th>1st</th>

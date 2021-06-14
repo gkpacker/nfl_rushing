@@ -6,40 +6,52 @@ defmodule NflRushingWeb.RushingStatisticsLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    rushing_statistics = NflRushingWeb.list_rushing_statistics(%{})
-
-    {:ok, socket, temporary_assigns: [rushing_statistics: rushing_statistics, options: %{}]}
+    {:ok, socket, temporary_assigns: [rushing_statistics: []]}
   end
 
   @impl true
   def handle_params(params, _url, socket) do
-    options = options(params)
+    sort_options = sort_options(params)
+    player_name = params["player_name"]
 
     rushing_statistics =
-      options
-      |> map_sort_by_to_domain()
-      |> NflRushingWeb.list_rushing_statistics()
+      NflRushingWeb.list_rushing_statistics(%{
+        filter: %{player_name: player_name},
+        sort_options: map_sort_by_to_domain(sort_options)
+      })
 
-    {:noreply, assign(socket, rushing_statistics: rushing_statistics, options: options)}
+    socket =
+      assign(socket,
+        rushing_statistics: rushing_statistics,
+        sort_options: sort_options,
+        player_name: player_name
+      )
+
+    {:noreply, socket}
   end
 
-  defp options(params) do
+  @impl true
+  def handle_event("filter", %{"player_name" => player_name}, socket) do
+    {:noreply, push_patch(socket, to: self_path(socket, player_name))}
+  end
+
+  def self_path(socket, player_name) do
+    Routes.rushing_statistics_path(
+      socket,
+      :index,
+      Map.put(socket.assigns.sort_options, :player_name, player_name)
+    )
+  end
+
+  defp sort_options(params) do
     sort_by = params["sort_by"]
     sort_order = (params["sort_order"] || "desc") |> String.to_atom()
-    player = params["player"] || ""
 
-    sort_options = %{sort_by: sort_by, sort_order: sort_order}
-
-    filter = %{player_name: player}
-
-    %{
-      sort_options: sort_options,
-      filter: filter
-    }
+    %{sort_by: sort_by, sort_order: sort_order}
   end
 
-  defp map_sort_by_to_domain(%{sort_options: %{sort_by: sort_by}} = options), do:
-    put_in(options, [:sort_options, :sort_by], sort_by(sort_by))
+  defp map_sort_by_to_domain(sort_options),
+    do: Map.put(sort_options, :sort_by, sort_by(sort_options[:sort_by]))
 
   defp sort_by("Yds"), do: :total_yards
   defp sort_by("Td"), do: :total_touchdowns
