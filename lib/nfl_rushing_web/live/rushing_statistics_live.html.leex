@@ -4,6 +4,13 @@
   <form phx-change="filter">
     <input type="text" name="player_name" value="<%= @player_name %>" class="form-control" placeholder="Player Name" />
   </form>
+  <%= link "Download CSV", to: Routes.rushing_statistics_path(
+                                 @socket,
+                                 :export_csv,
+                                 sort_by: @sort_options[:sort_by],
+                                 sort_order: @sort_options[:sort_order],
+                                 player_name: @player_name
+                               ) %>
   <table>
     <thead>
       <tr>
