@@ -1,8 +1,11 @@
 defmodule NflRushing.RushingStatisticTranslator do
+  @moduledoc "Handles rushing statistic translation to domain"
+
   alias NflRushing.Schema.RushingStatistic
 
   @touchdown "T"
 
+  @spec from_string_map(%{required(String.t()) => any()}) :: Ecto.Changeset.t()
   def from_string_map(rushing_statistic) when is_map(rushing_statistic) do
     params = %{
       player_name: rushing_statistic["Player"],

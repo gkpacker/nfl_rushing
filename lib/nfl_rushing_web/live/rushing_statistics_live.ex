@@ -17,7 +17,7 @@ defmodule NflRushingWeb.RushingStatisticsLive do
     rushing_statistics =
       NflRushingWeb.list_rushing_statistics(%{
         filter: %{player_name: player_name},
-        sort_options: map_sort_by_to_domain(sort_options)
+        sort_options: sort_options
       })
 
     socket =
@@ -49,12 +49,4 @@ defmodule NflRushingWeb.RushingStatisticsLive do
 
     %{sort_by: sort_by, sort_order: sort_order}
   end
-
-  defp map_sort_by_to_domain(sort_options),
-    do: Map.put(sort_options, :sort_by, sort_by(sort_options[:sort_by]))
-
-  defp sort_by("Yds"), do: :total_yards
-  defp sort_by("Td"), do: :total_touchdowns
-  defp sort_by("Lng"), do: :longest_rush
-  defp sort_by(_), do: :inserted_at
 end

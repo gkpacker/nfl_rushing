@@ -1,4 +1,6 @@
 defmodule NflRushing.Schema.RushingStatistic do
+  @moduledoc "Represents a rushing statistic"
+
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -69,4 +71,9 @@ defmodule NflRushing.Schema.RushingStatistic do
     |> cast(attrs, @fields)
     |> validate_required(@fields)
   end
+
+  def longest_rush(%__MODULE__{longest_rush: longest_rush, longest_rush_was_touchdown?: true}),
+    do: "#{longest_rush}T"
+
+  def longest_rush(%__MODULE__{longest_rush: longest_rush}), do: longest_rush
 end

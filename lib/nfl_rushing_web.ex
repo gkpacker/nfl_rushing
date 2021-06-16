@@ -17,7 +17,40 @@ defmodule NflRushingWeb do
   and import those modules here.
   """
 
-  defdelegate list_rushing_statistics(options), to: NflRushing
+  def list_rushing_statistics(options \\ %{}) do
+    domain_options = domain_options(options)
+
+    NflRushing.list_rushing_statistics(domain_options)
+  end
+
+  def export_csv(options, callback) do
+    domain_options = domain_options(options)
+
+    NflRushing.export_csv(domain_options, callback)
+  end
+
+  defp domain_options(options) do
+    sort_by =
+      options
+      |> get_in([:sort_options, :sort_by])
+      |> sort_by()
+
+    sort_order =
+      options
+      |> get_in([:sort_options, :sort_order])
+      |> sort_order()
+
+    Map.put(options, :sort_options, %{sort_by: sort_by, sort_order: sort_order})
+  end
+
+  defp sort_by("Yds"), do: :total_yards
+  defp sort_by("Td"), do: :total_touchdowns
+  defp sort_by("Lng"), do: :longest_rush
+  defp sort_by(_), do: :inserted_at
+
+  defp sort_order("asc"), do: :asc
+  defp sort_order("desc"), do: :desc
+  defp sort_order(_), do: :desc
 
   def controller do
     quote do
