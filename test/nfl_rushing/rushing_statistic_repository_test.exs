@@ -84,4 +84,26 @@ defmodule NflRushing.RushingStatisticRepositoryTest do
                })
     end
   end
+
+  describe "list_stream/1" do
+    test "behaves the same" do
+      insert_list(3, :rushing_statistic)
+
+      packer_statistic =
+        insert(:rushing_statistic, player_name: "Gabriel Packer", total_touchdowns: 20)
+
+      parker_statistic =
+        insert(:rushing_statistic, player_name: "Peter Parker", total_touchdowns: 10)
+
+      assert {:ok, [^parker_statistic, ^packer_statistic]} =
+               Repo.transaction(fn ->
+                 %{
+                   filter: %{player_name: "pa"},
+                   sort_options: %{sort_by: :total_touchdowns, sort_order: :asc}
+                 }
+                 |> RushingStatisticRepository.list_stream()
+                 |> Enum.to_list()
+               end)
+    end
+  end
 end

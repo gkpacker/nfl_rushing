@@ -22,6 +22,21 @@ defmodule NflRushing.RushingStatisticRepository do
   def list(options \\ %{})
 
   def list(options) do
+    options
+    |> list_query()
+    |> Repo.all()
+  end
+
+  @spec list_stream(options :: list_options()) :: Enum.t()
+  def list_stream(options \\ %{})
+
+  def list_stream(options) do
+    options
+    |> list_query()
+    |> Repo.stream()
+  end
+
+  defp list_query(options) do
     filters = options[:filter] || %{}
     sort_by = get_in(options, [:sort_options, :sort_by]) || :inserted_at
     sort_order = get_in(options, [:sort_options, :sort_order]) || :asc
@@ -29,7 +44,6 @@ defmodule NflRushing.RushingStatisticRepository do
     filters
     |> Enum.reduce(RushingStatistic, &apply_filter/2)
     |> order_by([r], {^sort_order, ^sort_by})
-    |> Repo.all()
   end
 
   defp apply_filter({:player_name, player_name}, query),
