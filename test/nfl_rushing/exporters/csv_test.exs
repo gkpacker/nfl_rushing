@@ -23,7 +23,7 @@ defmodule NflRushing.Exporters.CSVTest do
         fumbles: fumbles
       } = insert(:rushing_statistic, longest_rush_was_touchdown?: true)
 
-      {:ok, iodata} = CSV.export(%{}, fn stream -> Enum.to_list(stream) end)
+      {:ok, iodata} = CSV.export([], fn stream -> Enum.to_list(stream) end)
 
       assert IO.iodata_to_binary(iodata) == """
              Player,Team,Pos,Att/G,Att,Yds,Avg,Yds/G,Td,Lng,1st,1st%,20+,40+,FUM\r\n\

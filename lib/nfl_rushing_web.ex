@@ -17,7 +17,7 @@ defmodule NflRushingWeb do
   and import those modules here.
   """
 
-  def list_rushing_statistics(options \\ %{}) do
+  def list_rushing_statistics(options \\ []) do
     domain_options = domain_options(options)
 
     NflRushing.list_rushing_statistics(domain_options)
@@ -32,15 +32,15 @@ defmodule NflRushingWeb do
   defp domain_options(options) do
     sort_by =
       options
-      |> get_in([:sort_options, :sort_by])
+      |> get_in([:sort, :sort_by])
       |> sort_by()
 
     sort_order =
       options
-      |> get_in([:sort_options, :sort_order])
+      |> get_in([:sort, :sort_order])
       |> sort_order()
 
-    Map.put(options, :sort_options, %{sort_by: sort_by, sort_order: sort_order})
+    Keyword.put(options, :sort, %{sort_by: sort_by, sort_order: sort_order})
   end
 
   defp sort_by("Yds"), do: :total_yards

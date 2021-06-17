@@ -5,11 +5,11 @@ defmodule NflRushingTest do
 
   describe "list_rushing_statistics/1" do
     test "returns rushing statistics" do
-      assert [] = NflRushing.list_rushing_statistics()
+      assert %{entries: []} = NflRushing.list_rushing_statistics()
 
       rushing_statistic = insert(:rushing_statistic)
 
-      assert [^rushing_statistic] = NflRushing.list_rushing_statistics()
+      assert %{entries: [^rushing_statistic]} = NflRushing.list_rushing_statistics()
     end
 
     test "accepts filter and sort options" do
@@ -20,11 +20,11 @@ defmodule NflRushingTest do
 
       parker_statistic = insert(:rushing_statistic, total_yards: 30, player_name: "Peter Parker")
 
-      assert [^parker_statistic, ^packer_statistic] =
-               NflRushing.list_rushing_statistics(%{
+      assert %{entries: [^parker_statistic, ^packer_statistic]} =
+               NflRushing.list_rushing_statistics(
                  filter: %{player_name: "pa"},
-                 sort_options: %{sort_by: :total_yards, sort_order: :desc}
-               })
+                 sort: %{sort_by: :total_yards, sort_order: :desc}
+               )
     end
   end
 end

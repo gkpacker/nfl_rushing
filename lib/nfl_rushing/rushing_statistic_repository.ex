@@ -6,48 +6,78 @@ defmodule NflRushing.RushingStatisticRepository do
 
   import Ecto.Query
 
-  @type filter :: %{optional(:player_name) => String.t()}
-  @type sort_options :: %{optional(:sort_by) => atom(), optional(:sort_order) => :asc | :desc}
-  @type list_options :: %{
-          optional(:filter) => filter(),
-          optional(:sort_options) => sort_options()
-        }
+  @type filter_criteria :: {:filter, %{optional(:player_name) => String.t()}}
+  @type sort_criteria ::
+          {:sort, %{optional(:sort_by) => atom(), optional(:sort_order) => :asc | :desc}}
+  @type paginate_criteria ::
+          {:paginate, %{required(:per_page) => pos_integer(), required(:page) => pos_integer()}}
 
   @doc """
-  Returns a list with all `NflRushing.Schema.RushingStatistic` matching given criterias
-  in `options[:filter]` and orders by `options[:sort_options][:sort_by]`
-  in `options[:sort_options][:sort_order]` direction.
+  Returns a list with paginated `NflRushing.Schema.RushingStatistic` matching given criterias
+
+  Example criteria:
+
+  [
+    filter: %{player_name: "pa"},
+    paginate: %{page: 2, per_page: 10},
+    sort: %{sort_by: :total_touchdowns, sort_order: :asc}
+  ]
   """
-  @spec list(options :: list_options()) :: [RushingStatistic.t()]
-  def list(options \\ %{})
+  @spec list(criteria :: [filter_criteria() | sort_criteria() | paginate_criteria()]) ::
+          Paginator.Page.t()
+  def list(criteria \\ []) when is_list(criteria) do
+    per_page = get_in(criteria, [:paginate, :per_page]) || 10
 
-  def list(options) do
-    options
-    |> list_query()
-    |> Repo.all()
+    criteria
+    |> Enum.reduce(RushingStatistic, fn
+      {:paginate, paginate_params}, query ->
+        apply_pagination(query, paginate_params)
+
+      {:filter, filter_params}, query ->
+        apply_filter(query, filter_params)
+
+      {:sort, sort_params}, query ->
+        apply_sort(query, sort_params)
+    end)
+    |> Repo.paginate(cursor_fields: [:inserted_at, :id], limit: per_page)
   end
 
-  @spec list_stream(options :: list_options()) :: Enum.t()
-  def list_stream(options \\ %{})
-
-  def list_stream(options) do
-    options
-    |> list_query()
-    |> Repo.stream()
+  defp apply_pagination(query, %{page: page, per_page: per_page}) do
+    offset(query, ^((page - 1) * per_page))
   end
 
-  defp list_query(options) do
-    filters = options[:filter] || %{}
-    sort_by = get_in(options, [:sort_options, :sort_by]) || :inserted_at
-    sort_order = get_in(options, [:sort_options, :sort_order]) || :asc
-
-    filters
-    |> Enum.reduce(RushingStatistic, &apply_filter/2)
-    |> order_by([r], {^sort_order, ^sort_by})
-  end
-
-  defp apply_filter({:player_name, player_name}, query),
+  defp apply_filter(query, %{player_name: player_name}),
     do: where(query, [r], like(r.player_name, ^"%#{player_name}%"))
 
-  defp apply_filter(_, query), do: query
+  defp apply_filter(query, _assigns), do: query
+
+  defp apply_sort(query, sort_params) do
+    sort_by = sort_params[:sort_by] || :inserted_at
+    sort_order = sort_params[:sort_order] || :asc
+
+    order_by(query, [r], {^sort_order, ^sort_by})
+  end
+
+  @doc """
+  Returns a `NflRushing.Schema.RushingStatistic` stream matching given criterias
+
+  Example criteria:
+
+  [
+    filter: %{player_name: "pa"},
+    sort: %{sort_by: :total_touchdowns, sort_order: :asc}
+  ]
+  """
+  @spec list_stream(criteria :: [filter_criteria() | sort_criteria()]) :: Enum.t()
+  def list_stream(criteria \\ []) when is_list(criteria) do
+    criteria
+    |> Enum.reduce(RushingStatistic, fn
+      {:filter, filter_params}, query ->
+        apply_filter(query, filter_params)
+
+      {:sort, sort_params}, query ->
+        apply_sort(query, sort_params)
+    end)
+    |> Repo.stream()
+  end
 end

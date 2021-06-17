@@ -23,20 +23,20 @@ defmodule NflRushing.Exporters.CSV do
   alias NflRushing.RushingStatisticRepository
   alias NflRushing.Schema.RushingStatistic
 
-  @type export_options :: %{
-          optional(:filter) => RushingStatisticRepository.filter(),
-          optional(:sort_options) => RushingStatisticRepository.sort_options()
-        }
+  @type export_criterias :: [
+          RushingStatisticRepository.filter_criteria()
+          | RushingStatisticRepository.sort_criteria()
+        ]
 
   @doc """
   Accepts filtering and ordering options to query `NflRushing.Schema.RushingStatistic` and
   streams its data as CSV to given `callback` function.
   """
-  @spec export(options :: export_options(), callback :: fun()) :: any()
-  def export(options, callback) do
+  @spec export(criteria :: export_criterias(), callback :: fun()) :: any()
+  def export(criteria, callback) do
     Repo.transaction(
       fn ->
-        options
+        criteria
         |> RushingStatisticRepository.list_stream()
         |> Stream.map(&build_row/1)
         |> add_header()

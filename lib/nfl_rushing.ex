@@ -10,6 +10,6 @@ defmodule NflRushing do
   alias NflRushing.Exporters.CSV
   alias NflRushing.RushingStatisticRepository
 
-  defdelegate list_rushing_statistics(options \\ %{}), to: RushingStatisticRepository, as: :list
-  defdelegate export_csv(options \\ %{}, callback), to: CSV, as: :export
+  defdelegate list_rushing_statistics(options \\ []), to: RushingStatisticRepository, as: :list
+  defdelegate export_csv(options, callback), to: CSV, as: :export
 end

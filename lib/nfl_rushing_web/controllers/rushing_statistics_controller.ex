@@ -8,13 +8,13 @@ defmodule NflRushingWeb.RushingStatisticsController do
       |> put_resp_header("content-disposition", ~s[attachment; filename="report.csv"])
       |> send_chunked(:ok)
 
-    options = %{
+    options = [
       filter: %{player_name: params["player_name"]},
-      sort_options: %{
+      sort: %{
         sort_by: params["sort_by"],
         sort_order: params["sort_order"]
       }
-    }
+    ]
 
     {:ok, conn} = NflRushingWeb.export_csv(options, &chunk_data(&1, conn))
 
