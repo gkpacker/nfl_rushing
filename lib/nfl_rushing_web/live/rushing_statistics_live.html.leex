@@ -1,7 +1,7 @@
 <h1>Rushing Statistics</h1>
 <hr>
 <div>
-  <form phx-change="filter">
+  <form id="player_name"phx-change="filter">
     <input type="text" name="player_name" value="<%= @player_name %>" class="form-control" placeholder="Player Name" />
   </form>
   <%= link "Download CSV", to: Routes.rushing_statistics_path(
@@ -11,6 +11,20 @@
                                  sort_order: @sort_options[:sort_order],
                                  player_name: @player_name
                                ) %>
+
+  <div class="float-right">
+    <div>
+      <div>
+        <form phx-change="change-per-page">
+          Show
+          <select name="per-page" class="form-select">
+            <%= options_for_select([10, 20, 30, 50], @paginate.per_page) %>
+          </select>
+          <b>per page</b>
+        </form>
+      </div>
+    </div>
+  </div>
   <table>
     <thead>
       <tr>
@@ -25,7 +39,9 @@
                                       :index,
                                       sort_by: "Yds",
                                       sort_order: toggle_sort_order(@sort_options),
-                                      player_name: @player_name
+                                      player_name: @player_name,
+                                      page: @paginate.page,
+                                      per_page: @paginate.per_page
                                     ) %>
         </th>
         <th>Avg</th>
@@ -36,7 +52,9 @@
                                     :index,
                                     sort_by: "Td",
                                     sort_order: toggle_sort_order(@sort_options),
-                                    player_name: @player_name
+                                    player_name: @player_name,
+                                    page: @paginate.page,
+                                    per_page: @paginate.per_page
                                   ) %>
         </th>
         <th>
@@ -45,7 +63,9 @@
                                       :index,
                                       sort_by: "Lng",
                                       sort_order: toggle_sort_order(@sort_options),
-                                      player_name: @player_name
+                                      player_name: @player_name,
+                                      page: @paginate.page,
+                                      per_page: @paginate.per_page
                                     ) %>
         </th>
         <th>1st</th>
@@ -56,8 +76,8 @@
       </tr>
     </thead>
     <tbody id="rushing_statistics">
-      <%= for rushing_statistic <- @rushing_statistics do %>
-        <tr id="rushing_statistic-<%= rushing_statistic.id %>">
+      <%= for {rushing_statistic, index} <- Enum.with_index(@rushing_statistics) do %>
+        <tr id="rushing_statistic-<%= index %>">
           <td><strong><%= rushing_statistic.player_name %></strong></td>
           <td><%= rushing_statistic.team %></td>
           <td><%= rushing_statistic.player_position %></td>
@@ -77,4 +97,40 @@
       <% end %>
     </tbody>
   </table>
+
+  <div class="footer">
+    <div class="pagination">
+      <%= if @paginate.page > 1 do %>
+        <%= pagination_link(@socket,
+                            "Previous",
+                            "previous",
+                            player_name: @player_name,
+                            page: @paginate.page - 1,
+                            per_page: @paginate.per_page,
+                            sort_by: @sort_options.sort_by,
+                            sort_order: @sort_options.sort_order
+                            ) %>
+      <% end %>
+      <%= for i <- (@paginate.page - 3)..(@paginate.page + 3), i > 0 do %>
+        <%= pagination_link(@socket,
+                              i,
+                              (if i == @paginate.page, do: "active"),
+                              player_name: @player_name,
+                              page: i,
+                              per_page: @paginate.per_page,
+                              sort_by: @sort_options.sort_by,
+                              sort_order: @sort_options.sort_order
+                            ) %>
+      <% end %>
+      <%= pagination_link(@socket,
+                            "Next",
+                            "next",
+                            player_name: @player_name,
+                            page: @paginate.page + 1,
+                            per_page: @paginate.per_page,
+                            sort_by: @sort_options.sort_by,
+                            sort_order: @sort_options.sort_order
+                          ) %>
+    </div>
+  </div>
 </div>

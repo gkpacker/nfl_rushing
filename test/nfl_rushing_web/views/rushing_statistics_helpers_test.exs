@@ -32,8 +32,8 @@ defmodule NflRushingWeb.RushingStatisticsHelpersTest do
       assert "desc" = RushingStatisticsHelpers.toggle_sort_order(%{sort_order: "asc"})
     end
 
-    test "defaults to asc" do
-      assert "asc" = RushingStatisticsHelpers.toggle_sort_order(%{})
+    test "defaults to desc" do
+      assert "desc" = RushingStatisticsHelpers.toggle_sort_order(%{})
     end
   end
 

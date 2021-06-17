@@ -13,18 +13,23 @@ defmodule NflRushingWeb.RushingStatisticsLive do
   def handle_params(params, _url, socket) do
     sort_options = sort_options(params)
     player_name = params["player_name"]
+    page = String.to_integer(params["page"] || "1")
+    per_page = String.to_integer(params["per_page"] || "10")
+    paginate = %{page: page, per_page: per_page}
 
-    rushing_statistics =
-      NflRushingWeb.list_rushing_statistics(%{
+    %{entries: rushing_statistics} =
+      NflRushingWeb.list_rushing_statistics(
         filter: %{player_name: player_name},
-        sort_options: sort_options
-      })
+        sort: sort_options,
+        paginate: paginate
+      )
 
     socket =
       assign(socket,
         rushing_statistics: rushing_statistics,
         sort_options: sort_options,
-        player_name: player_name
+        player_name: player_name,
+        paginate: paginate
       )
 
     {:noreply, socket}
@@ -32,20 +37,48 @@ defmodule NflRushingWeb.RushingStatisticsLive do
 
   @impl true
   def handle_event("filter", %{"player_name" => player_name}, socket) do
-    {:noreply, push_patch(socket, to: self_path(socket, player_name))}
+    {:noreply, push_patch(socket, to: self_path(socket, %{player_name: player_name}))}
   end
 
-  def self_path(socket, player_name) do
+  @impl true
+  def handle_event("change-per-page", %{"per-page" => per_page}, socket) do
+    {:noreply, push_patch(socket, to: self_path(socket, %{per_page: per_page}))}
+  end
+
+  defp pagination_link(socket, text, class, opts) do
+    live_patch(text,
+      to:
+        Routes.rushing_statistics_path(
+          socket,
+          :index,
+          opts
+        ),
+      class: class
+    )
+  end
+
+  def self_path(socket, extra) do
+    opts = options(socket)
+
     Routes.rushing_statistics_path(
       socket,
       :index,
-      Map.put(socket.assigns.sort_options, :player_name, player_name)
+      Map.merge(opts, extra)
     )
+  end
+
+  defp options(socket) do
+    socket.assigns.sort_options
+    |> Map.put(:player_name, socket.assigns.player_name)
+    |> Map.put(:per_page, socket.assigns.paginate.per_page)
+    |> Map.put(:page, socket.assigns.paginate.page)
+    |> Enum.filter(fn {_, v} -> v end)
+    |> Enum.into(%{})
   end
 
   defp sort_options(params) do
     sort_by = params["sort_by"]
-    sort_order = (params["sort_order"] || "desc") |> String.to_atom()
+    sort_order = params["sort_order"]
 
     %{sort_by: sort_by, sort_order: sort_order}
   end

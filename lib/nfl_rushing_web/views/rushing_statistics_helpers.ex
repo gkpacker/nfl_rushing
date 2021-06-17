@@ -8,7 +8,7 @@ defmodule NflRushingWeb.RushingStatisticsHelpers do
 
   def toggle_sort_order(%{sort_order: "asc"}), do: "desc"
   def toggle_sort_order(%{sort_order: "desc"}), do: "asc"
-  def toggle_sort_order(_), do: "asc"
+  def toggle_sort_order(_), do: "desc"
 
   def sort_text(field, %{sort_by: field, sort_order: sort_order}),
     do: "#{field}#{sort_symbol(sort_order)}"
