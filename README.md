@@ -54,4 +54,62 @@ We will evaluate you on your ability to solve the problem defined in the require
 If you have any questions regarding requirements, do not hesitate to email your contact at theScore for clarification.
 
 ### Installation and running this solution
-... TODO
+You can setup this project on your machine with the following steps:
+
+```bash
+git clone git@github.com:gkpacker/nfl_rushing.git
+cd nfl_rushing
+```
+
+Ensure you have elixir (>= 11.1) and erlang (>= 23.3) installed or follow the instructions on the links below to install asdf package manager and the correct plugins:
+
+https://github.com/asdf-vm/asdf
+https://github.com/asdf-vm/asdf-elixir
+https://github.com/asdf-vm/asdf-erlang
+
+Run `asdf install`.
+
+Install project dependencies:
+
+```bash
+mix deps.get
+```
+
+Export the `SECRET_KEY_BASE` env and build database and web server images:
+```bash
+mix phx.gen.secret
+export SECRET_KEY_BASE=<secret_key_base>
+
+docker-compose build
+```
+> Or use this random one, just to speed up: OVZpBvQs9gCFnYZeP63sJtMSwVgE+nqg+4uxGbtqiTfx7vLSGtF9RZJTE/w55Ula
+
+Then, run:
+```bash
+docker-compose up -d
+```
+
+Run seeds with:
+```bash
+docker exec -it nfl_rushing_web_1 mix run priv/repo/seeds.exs
+```
+
+And you're ready to go! 🚀
+
+Check your http://localhost:4000!
+
+### Running tests
+Having ran the setup and the db image is up, run:
+
+```bash
+mix test
+```
+
+Ensure project's quality with:
+```bash
+mix quality
+```
+> runs format checker, credo, sobelow and dialyzer
+
+### Attention Points
+There's a bug on the pagination links (they are infinite) which I wasn't able to fix in time :(
