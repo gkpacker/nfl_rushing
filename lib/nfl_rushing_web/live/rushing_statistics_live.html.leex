@@ -103,7 +103,6 @@
       <%= if @paginate.page > 1 do %>
         <%= pagination_link(@socket,
                             "Previous",
-                            "previous",
                             player_name: @player_name,
                             page: @paginate.page - 1,
                             per_page: @paginate.per_page,
@@ -114,7 +113,6 @@
       <%= for i <- (@paginate.page - 3)..(@paginate.page + 3), i > 0 do %>
         <%= pagination_link(@socket,
                               i,
-                              (if i == @paginate.page, do: "active"),
                               player_name: @player_name,
                               page: i,
                               per_page: @paginate.per_page,
@@ -124,7 +122,6 @@
       <% end %>
       <%= pagination_link(@socket,
                             "Next",
-                            "next",
                             player_name: @player_name,
                             page: @paginate.page + 1,
                             per_page: @paginate.per_page,

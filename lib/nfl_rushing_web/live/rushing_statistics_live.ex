@@ -13,9 +13,7 @@ defmodule NflRushingWeb.RushingStatisticsLive do
   def handle_params(params, _url, socket) do
     sort_options = sort_options(params)
     player_name = params["player_name"]
-    page = String.to_integer(params["page"] || "1")
-    per_page = String.to_integer(params["per_page"] || "10")
-    paginate = %{page: page, per_page: per_page}
+    paginate = paginate_options(params)
 
     %{entries: rushing_statistics} =
       NflRushingWeb.list_rushing_statistics(
@@ -35,6 +33,15 @@ defmodule NflRushingWeb.RushingStatisticsLive do
     {:noreply, socket}
   end
 
+  defp paginate_options(params) do
+    page = String.to_integer(params["page"] || "1")
+    per_page_params = String.to_integer(params["per_page"] || "10")
+
+    per_page = if(per_page_params > 50, do: 50, else: per_page_params)
+
+    %{page: page, per_page: per_page}
+  end
+
   @impl true
   def handle_event("filter", %{"player_name" => player_name}, socket) do
     {:noreply, push_patch(socket, to: self_path(socket, %{player_name: player_name}))}
@@ -45,15 +52,14 @@ defmodule NflRushingWeb.RushingStatisticsLive do
     {:noreply, push_patch(socket, to: self_path(socket, %{per_page: per_page}))}
   end
 
-  defp pagination_link(socket, text, class, opts) do
+  defp pagination_link(socket, text, opts) do
     live_patch(text,
       to:
         Routes.rushing_statistics_path(
           socket,
           :index,
           opts
-        ),
-      class: class
+        )
     )
   end
 
