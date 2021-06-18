@@ -59,7 +59,8 @@ defmodule NflRushing.MixProject do
       {:excoveralls, "~> 0.10", only: :test},
       {:ex_machina, "~> 2.7.0", only: :test},
       {:nimble_csv, "~> 1.1"},
-      {:paginator, "~> 1.0.4"}
+      {:paginator, "~> 1.0.4"},
+      {:sobelow, "~> 0.8", only: :dev}
     ]
   end
 
@@ -74,7 +75,8 @@ defmodule NflRushing.MixProject do
       setup: ["deps.get", "ecto.setup", "cmd npm install --prefix assets"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      quality: ["format --check-formatted", "credo --strict", "sobelow --config", "dialyzer"]
     ]
   end
 end
